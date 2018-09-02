@@ -5,4 +5,5 @@ authors = ["Kumar Ankur <kmrankur@outlook.com>"]
 
 [dependencies]
 piston_window = "0.80.0"
+piston2d-opengl_graphics = "0.53.0"
 rand = "0.5.5"

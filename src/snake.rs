@@ -1,6 +1,7 @@
 use std::collections::LinkedList;
 
-use piston_window::{Context, G2d, types::Color};
+use piston_window::{Context, types::Color};
+use opengl_graphics::*;
 
 use block::Block;
 
@@ -60,7 +61,7 @@ impl Snake {
         }
     }
 
-    pub fn draw(&mut self, ctx: &Context, g: &mut G2d) {
+    pub fn draw(&mut self, ctx: &Context, g: &mut GlGraphics) {
         for block in self.body.iter_mut() {
             block.draw(ctx, g, SNAKE_COLOR);
         }

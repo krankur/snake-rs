@@ -1,7 +1,8 @@
-use piston_window::{Context, G2d, rectangle};
+use piston_window::{Context, rectangle, types::Color};
+use opengl_graphics::*;
 
 use block::BLOCK_SIZE;
-use canvas::{BLACK_COLOR, CANVAS_WIDTH, CANVAS_HEIGHT};
+use canvas::{CANVAS_WIDTH, CANVAS_HEIGHT};
 
 pub struct Boundary {
     pub top_margin: i32,
@@ -10,10 +11,12 @@ pub struct Boundary {
     pub right_margin: i32,
 }
 
+pub const GREY_COLOR: Color = [0.5, 0.5, 0.5, 1.0];
+
 impl Boundary {
-    pub fn draw(&self, ctx: &Context, g: &mut G2d) {
+    pub fn draw(&self, ctx: &Context, g: &mut GlGraphics) {
         rectangle(
-            BLACK_COLOR,
+            GREY_COLOR,
             [
                 (self.left_margin * BLOCK_SIZE) as f64,
                 (self.top_margin * BLOCK_SIZE) as f64,
@@ -24,7 +27,7 @@ impl Boundary {
             g,
         );
         rectangle(
-            BLACK_COLOR,
+            GREY_COLOR,
             [
                 ((CANVAS_WIDTH - self.right_margin - 1) * BLOCK_SIZE) as f64,
                 ((self.top_margin + 1) * BLOCK_SIZE) as f64,
@@ -35,7 +38,7 @@ impl Boundary {
             g,
         );
         rectangle(
-            BLACK_COLOR,
+            GREY_COLOR,
             [
                 (self.left_margin * BLOCK_SIZE) as f64,
                 ((CANVAS_HEIGHT - self.bottom_margin  - 1) * BLOCK_SIZE) as f64,
@@ -46,7 +49,7 @@ impl Boundary {
             g,
         );
         rectangle(
-            BLACK_COLOR,
+            GREY_COLOR,
             [
                 (self.left_margin * BLOCK_SIZE) as f64,
                 ((self.top_margin + 1) * BLOCK_SIZE) as f64,

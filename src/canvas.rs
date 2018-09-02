@@ -1,4 +1,5 @@
-use piston_window::{Context, G2d, types::Color, Key};
+use piston_window::{Context, Key};
+use opengl_graphics::*;
 use rand::{thread_rng, Rng};
 
 use apple::*;
@@ -8,8 +9,6 @@ use boundary::*;
 pub const CANVAS_WIDTH: i32 = 30;
 pub const CANVAS_HEIGHT: i32 = 30;
 const REFRESH_INTERVAL: f64 = 0.1;
-
-pub const BLACK_COLOR: Color = [0.1, 0.1, 0.1, 1.0];
 
 pub struct Canvas {
     width: i32,
@@ -53,7 +52,7 @@ impl Canvas {
         }
     }
 
-    pub fn draw(&mut self, ctx: &Context, g: &mut G2d) {
+    pub fn draw(&mut self, ctx: &Context, g: &mut GlGraphics) {
         if self.is_apple_eaten() {
             self.update_apple_state();
         }
@@ -63,7 +62,7 @@ impl Canvas {
         self.boundary.draw(ctx, g);
     }
 
-    fn get_new_apple_position(&self) -> (i32, i32) {
+    fn generate_new_apple_position(&self) -> (i32, i32) {
         let mut rng = thread_rng();
         let mut x = rng.gen_range(2, self.width - 2);
         let mut y = rng.gen_range(3, self.height - 2);
@@ -85,7 +84,7 @@ impl Canvas {
     }
     
     fn update_apple_state(&mut self) {
-        let (x, y) = self.get_new_apple_position();
+        let (x, y) = self.generate_new_apple_position();
         let apple = self.apple.as_mut().unwrap();
         apple.body.x = x;
         apple.body.y = y;
@@ -145,7 +144,7 @@ impl Canvas {
     }
     
     fn reset(&mut self) {
-        let (apple_x, apple_y) = self.get_new_apple_position();
+        let (apple_x, apple_y) = self.generate_new_apple_position();
         self.snake = Snake::new(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
         self.apple = Some(Apple::new(apple_x, apple_y));
         self.time_since_refresh = 0.0;

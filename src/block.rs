@@ -1,4 +1,5 @@
-use piston_window::{Context, G2d, rectangle, types::Color};
+use piston_window::{Context, rectangle, types::Color};
+use opengl_graphics::*;
 
 pub const BLOCK_SIZE: i32 = 10;
 
@@ -8,7 +9,7 @@ pub struct Block {
 }
 
 impl Block {
-    pub fn draw(&self, ctx: &Context, g: &mut G2d, color: Color) {
+    pub fn draw(&self, ctx: &Context, g: &mut GlGraphics, color: Color) {
         let x = (self.x * BLOCK_SIZE) as f64;
         let y = (self.y * BLOCK_SIZE)  as f64;
         rectangle(

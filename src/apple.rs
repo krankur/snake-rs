@@ -1,4 +1,5 @@
-use piston_window::{Context, G2d, types::Color};
+use piston_window::{Context, types::Color};
+use opengl_graphics::*;
 
 use block::Block;
 
@@ -20,7 +21,7 @@ impl Apple {
         }
     }
     
-    pub fn draw(&self, ctx: &Context, g: &mut G2d) {
+    pub fn draw(&self, ctx: &Context, g: &mut GlGraphics) {
         self.body.draw(ctx, g, APPLE_COLOR);
     }
 
