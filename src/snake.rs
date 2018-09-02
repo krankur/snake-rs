@@ -75,6 +75,33 @@ impl Snake {
         let head = self.body.front().unwrap();
         (head.x, head.y)
     }
+    
+    pub fn get_next_head_position(&self) -> (i32, i32) {
+        let (x, y) = self.get_head_position();
+        let new_x: i32;
+        let new_y: i32; 
+        
+        match self.direction {
+            Direction::Up => {
+                new_x = x;
+                new_y = y - 1;
+            },
+            Direction::Left => {
+                new_x = x - 1;
+                new_y = y;
+            },
+            Direction::Down => {
+                new_x = x;
+                new_y = y + 1;
+            },
+            Direction::Right => {
+                new_x = x + 1;
+                new_y = y;
+            }
+        };
+
+        (new_x, new_y)
+    }
 
     pub fn has_occupied(&self, x: i32, y: i32) -> bool {
         let mut cnt = 0;

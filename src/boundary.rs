@@ -2,7 +2,7 @@ use piston_window::{Context, rectangle, types::Color};
 use opengl_graphics::*;
 
 use block::BLOCK_SIZE;
-use canvas::{CANVAS_WIDTH, CANVAS_HEIGHT};
+use game::{GAME_WIDTH, GAME_HEIGHT};
 
 pub struct Boundary {
     pub top_margin: i32,
@@ -20,7 +20,7 @@ impl Boundary {
             [
                 (self.left_margin * BLOCK_SIZE) as f64,
                 (self.top_margin * BLOCK_SIZE) as f64,
-                ((CANVAS_WIDTH - self.left_margin - self.right_margin) * BLOCK_SIZE) as f64,
+                ((GAME_WIDTH - self.left_margin - self.right_margin) * BLOCK_SIZE) as f64,
                 BLOCK_SIZE as f64,
             ],
             ctx.transform,
@@ -29,10 +29,10 @@ impl Boundary {
         rectangle(
             GREY_COLOR,
             [
-                ((CANVAS_WIDTH - self.right_margin - 1) * BLOCK_SIZE) as f64,
+                ((GAME_WIDTH - self.right_margin - 1) * BLOCK_SIZE) as f64,
                 ((self.top_margin + 1) * BLOCK_SIZE) as f64,
                 BLOCK_SIZE as f64,
-                ((CANVAS_HEIGHT - self.top_margin - self.bottom_margin - 2) * BLOCK_SIZE) as f64,
+                ((GAME_HEIGHT - self.top_margin - self.bottom_margin - 2) * BLOCK_SIZE) as f64,
             ],
             ctx.transform,
             g,
@@ -41,8 +41,8 @@ impl Boundary {
             GREY_COLOR,
             [
                 (self.left_margin * BLOCK_SIZE) as f64,
-                ((CANVAS_HEIGHT - self.bottom_margin  - 1) * BLOCK_SIZE) as f64,
-                ((CANVAS_WIDTH - self.left_margin - self.right_margin) * BLOCK_SIZE) as f64,
+                ((GAME_HEIGHT - self.bottom_margin  - 1) * BLOCK_SIZE) as f64,
+                ((GAME_WIDTH - self.left_margin - self.right_margin) * BLOCK_SIZE) as f64,
                 BLOCK_SIZE as f64,
             ],
             ctx.transform,
@@ -54,7 +54,7 @@ impl Boundary {
                 (self.left_margin * BLOCK_SIZE) as f64,
                 ((self.top_margin + 1) * BLOCK_SIZE) as f64,
                 BLOCK_SIZE as f64,
-                ((CANVAS_HEIGHT - self.top_margin - self.bottom_margin - 2) * BLOCK_SIZE) as f64,
+                ((GAME_HEIGHT - self.top_margin - self.bottom_margin - 2) * BLOCK_SIZE) as f64,
             ],
             ctx.transform,
             g,
@@ -63,8 +63,8 @@ impl Boundary {
 
     pub fn is_overstepped(&self, x: i32, y: i32) -> bool {
         x == self.left_margin ||
-        x == CANVAS_WIDTH - self.right_margin - 1 ||
+        x == GAME_WIDTH - self.right_margin - 1 ||
         y == self.top_margin ||
-        y == CANVAS_HEIGHT - self.bottom_margin - 1
+        y == GAME_HEIGHT - self.bottom_margin - 1
     }
 }

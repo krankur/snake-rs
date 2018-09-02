@@ -1,4 +1,6 @@
-use piston_window::{Context, Key};
+// use piston_window::{Context, Key, types::Color, Transformed};
+use piston_window::*;
+use piston_window::types::Color;
 use opengl_graphics::*;
 use rand::{thread_rng, Rng};
 
@@ -6,20 +8,22 @@ use apple::*;
 use snake::*;
 use boundary::*;
 
-pub const CANVAS_WIDTH: i32 = 30;
-pub const CANVAS_HEIGHT: i32 = 30;
+const YELLOW_COLOR: Color = [1.0, 0.99, 0.22, 1.0];
+pub const GAME_WIDTH: i32 = 30;
+pub const GAME_HEIGHT: i32 = 30;
 const REFRESH_INTERVAL: f64 = 0.1;
 
-pub struct Canvas {
+pub struct Game {
     width: i32,
     height: i32,
     boundary: Boundary,
     snake: Snake,
     apple: Apple,
     time_since_refresh: f64,
+    score: i32,
 }
 
-impl Canvas {
+impl Game {
     pub fn new(width: i32, height: i32) -> Self {
         let boundary = Boundary {
             top_margin: 2,
@@ -27,13 +31,14 @@ impl Canvas {
             bottom_margin: 1,
             right_margin: 1,
         };
-        Canvas {
+        Game {
             width,
             height,
             boundary,
             snake: Snake::new(width / 2, height / 2),
             apple: Apple::new(),
             time_since_refresh: 0.0,
+            score: 0,
         }
     }
 
@@ -51,8 +56,19 @@ impl Canvas {
             }
         }
     }
+    
+    fn add_score(&self, ctx: &Context, g: &mut GlGraphics, glyph_cache: &mut GlyphCache) {
+        text(
+            YELLOW_COLOR,
+            12,
+            format!("Score: {}", self.score).as_str(),
+            glyph_cache,
+            ctx.transform.trans(15.0, 15.0),
+            g,
+        ).unwrap();
+    }
 
-    pub fn draw(&mut self, ctx: &Context, g: &mut GlGraphics) {
+    pub fn draw(&mut self, ctx: &Context, g: &mut GlGraphics, glyph_cache: &mut GlyphCache) {
         if self.apple.body.is_none() {
             let (x, y) = self.get_random_unoccupied_coordinate();
             self.apple.update_state(x, y);
@@ -60,6 +76,8 @@ impl Canvas {
         self.apple.draw(ctx, g);
         self.snake.draw(ctx, g);
         self.boundary.draw(ctx, g);
+
+        self.add_score(ctx, g, glyph_cache);
     }
 
     fn get_random_unoccupied_coordinate(&self) -> (i32, i32) {
@@ -79,43 +97,25 @@ impl Canvas {
         snake_x == apple_x && snake_y == apple_y
     }
 
+    fn is_coordinate_available(&self, x: i32, y: i32) -> bool {
+        self.snake.has_occupied(x, y) || self.boundary.is_overstepped(x, y)
+    }
+
     pub fn update(&mut self, delta_time: f64) {
         if self.apple.body.is_some() && self.is_snake_eating_apple() {
             self.snake.should_grow = true;
             self.apple.body = None;
+            self.score += 100;
         }
-
         if self.snake.is_dead {
             self.reset();
         }
-
         self.time_since_refresh += delta_time;
 
         if self.time_since_refresh > REFRESH_INTERVAL {
-            let (x, y) = self.snake.get_head_position();
-            let new_head_x: i32;
-            let new_head_y: i32; 
-            
-            match self.snake.direction {
-                Direction::Up => {
-                    new_head_x = x;
-                    new_head_y = y - 1;
-                },
-                Direction::Left => {
-                    new_head_x = x - 1;
-                    new_head_y = y;
-                },
-                Direction::Down => {
-                    new_head_x = x;
-                    new_head_y = y + 1;
-                },
-                Direction::Right => {
-                    new_head_x = x + 1;
-                    new_head_y = y;
-                }
-            };
+            let (new_head_x, new_head_y) = self.snake.get_next_head_position();
 
-            if self.snake.has_occupied(new_head_x, new_head_y) || self.boundary.is_overstepped(new_head_x, new_head_y) {
+            if self.is_coordinate_available(new_head_x, new_head_y) {
                 self.snake.is_dead = true;
             } else {
                 self.snake.slither(new_head_x, new_head_y);
@@ -125,8 +125,9 @@ impl Canvas {
     }
     
     fn reset(&mut self) {
-        self.snake = Snake::new(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
+        self.snake = Snake::new(GAME_WIDTH / 2, GAME_HEIGHT / 2);
         self.apple = Apple::new();
         self.time_since_refresh = 0.0;
+        self.score = 0;
     }
 }
