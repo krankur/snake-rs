@@ -76,7 +76,7 @@ impl Snake {
         (head.x, head.y)
     }
 
-    pub fn is_overlapped(&self, x: i32, y: i32) -> bool {
+    pub fn has_occupied(&self, x: i32, y: i32) -> bool {
         let mut cnt = 0;
         for block in self.body.iter() {
             if block.x == x && block.y == y {

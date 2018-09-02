@@ -15,7 +15,7 @@ pub struct Canvas {
     height: i32,
     boundary: Boundary,
     snake: Snake,
-    apple: Option<Apple>,
+    apple: Apple,
     time_since_refresh: f64,
 }
 
@@ -32,7 +32,7 @@ impl Canvas {
             height,
             boundary,
             snake: Snake::new(width / 2, height / 2),
-            apple: Some(Apple::new(2, 2)),
+            apple: Apple::new(),
             time_since_refresh: 0.0,
         }
     }
@@ -53,55 +53,36 @@ impl Canvas {
     }
 
     pub fn draw(&mut self, ctx: &Context, g: &mut GlGraphics) {
-        if self.is_apple_eaten() {
-            self.update_apple_state();
+        if self.apple.body.is_none() {
+            let (x, y) = self.get_random_unoccupied_coordinate();
+            self.apple.update_state(x, y);
         }
-        let apple = self.apple.as_ref().unwrap();
-        apple.draw(ctx, g);
+        self.apple.draw(ctx, g);
         self.snake.draw(ctx, g);
         self.boundary.draw(ctx, g);
     }
 
-    fn generate_new_apple_position(&self) -> (i32, i32) {
+    fn get_random_unoccupied_coordinate(&self) -> (i32, i32) {
         let mut rng = thread_rng();
         let mut x = rng.gen_range(2, self.width - 2);
         let mut y = rng.gen_range(3, self.height - 2);
-        while self.snake.is_overlapped(x, y) {
+        while self.snake.has_occupied(x, y) {
             x = rng.gen_range(2, self.width - 2);
             y = rng.gen_range(3, self.height - 2);
         }
         (x, y)
     }
 
-    fn is_apple_eaten(&self) -> bool {
-        let apple = self.apple.as_ref().unwrap();
-        apple.is_eaten
-    }
-
-    fn set_apple_eaten(&mut self) {
-        let apple = self.apple.as_mut().unwrap();
-        apple.is_eaten = true;
-    }
-    
-    fn update_apple_state(&mut self) {
-        let (x, y) = self.generate_new_apple_position();
-        let apple = self.apple.as_mut().unwrap();
-        apple.body.x = x;
-        apple.body.y = y;
-        apple.is_eaten = false;
-    }
-
     fn is_snake_eating_apple(&mut self) -> bool {
-        let apple = self.apple.as_mut().unwrap();
-        let (apple_x, apple_y) = apple.get_position();
+        let (apple_x, apple_y) = self.apple.get_position();
         let (snake_x, snake_y) = self.snake.get_head_position();
         snake_x == apple_x && snake_y == apple_y
     }
 
     pub fn update(&mut self, delta_time: f64) {
-        if self.is_snake_eating_apple() {
+        if self.apple.body.is_some() && self.is_snake_eating_apple() {
             self.snake.should_grow = true;
-            self.set_apple_eaten();
+            self.apple.body = None;
         }
 
         if self.snake.is_dead {
@@ -112,41 +93,40 @@ impl Canvas {
 
         if self.time_since_refresh > REFRESH_INTERVAL {
             let (x, y) = self.snake.get_head_position();
-            let new_x: i32;
-            let new_y: i32; 
+            let new_head_x: i32;
+            let new_head_y: i32; 
             
             match self.snake.direction {
                 Direction::Up => {
-                    new_x = x;
-                    new_y = y - 1;
+                    new_head_x = x;
+                    new_head_y = y - 1;
                 },
                 Direction::Left => {
-                    new_x = x - 1;
-                    new_y = y;
+                    new_head_x = x - 1;
+                    new_head_y = y;
                 },
                 Direction::Down => {
-                    new_x = x;
-                    new_y = y + 1;
+                    new_head_x = x;
+                    new_head_y = y + 1;
                 },
                 Direction::Right => {
-                    new_x = x + 1;
-                    new_y = y;
+                    new_head_x = x + 1;
+                    new_head_y = y;
                 }
             };
 
-            if self.snake.is_overlapped(new_x, new_y) || self.boundary.is_overstepped(new_x, new_y) {
+            if self.snake.has_occupied(new_head_x, new_head_y) || self.boundary.is_overstepped(new_head_x, new_head_y) {
                 self.snake.is_dead = true;
             } else {
-                self.snake.slither(new_x, new_y);
+                self.snake.slither(new_head_x, new_head_y);
             }
             self.time_since_refresh = 0.0;
         }
     }
     
     fn reset(&mut self) {
-        let (apple_x, apple_y) = self.generate_new_apple_position();
         self.snake = Snake::new(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
-        self.apple = Some(Apple::new(apple_x, apple_y));
+        self.apple = Apple::new();
         self.time_since_refresh = 0.0;
     }
 }
